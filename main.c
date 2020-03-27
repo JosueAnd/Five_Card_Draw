@@ -45,15 +45,13 @@
 
 // Prototypes
 void dealACard(char *suits[], char *faces[], int deck[][FACES]);
-void dealARound(char **suits, char **faces, int **deck, int ***playerHands, int round);
-void dealAHand(char **suits, char **faces, int **deck, int playerHands[][PLAYERS][NUM_OF_CARDS], int
-player, int round);
-void dealAGame(char *suits[], char *faces[], int deck[][FACES], int
-playerHands[][PLAYERS][NUM_OF_CARDS]);
+void dealARound(char **suits, char **faces, int ***playerHands, int round);
+void dealAHand(char **suits, char **faces, int deck[][FACES], int
+***playerHands, int player, int round);
+void dealAGame(char *suits[], char *faces[], int playerHands[][PLAYERS][NUM_OF_CARDS]);
 void printHands(int hands[][SUITS][FACES]);
 void tester(char *suits[], char *faces[], int deck[][FACES], int
 playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round);
-void reset(int deck[][FACES]);
 
 /*
  * Name:			main()
@@ -68,12 +66,12 @@ int main() {
 	char *suits[SUITS] = {"Hearts", "Diamonds", "Spades", "Clubs"};
 	char *faces[FACES] = {"Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
 					   "Jack", "Queen", "King", "Ace"};
-	int deck[SUITS][FACES] = {AVAILABLE};
+	// int deck[SUITS][FACES] = {AVAILABLE};
 	int playerHands[ROUNDS][PLAYERS][NUM_OF_CARDS] = {AVAILABLE};
 
 	// Calculation
 	srand(time(NULL));
-	dealAGame(suits, faces, deck, playerHands);
+	dealAGame(suits, faces, playerHands);
 
     // Output
     return 0;
@@ -115,13 +113,15 @@ void dealACard(char *suits[], char *faces[], int deck[][FACES]) {
  * Processes:		Deal a 5 card draw poker hand of cards;	Absolute: 5 cards dealt.
  * Return Value:	None.
  */
-void dealARound(char **suits, char **faces, int **deck, int ***playerHands, int round) {
+void dealARound(char **suits, char **faces, int ***playerHands, int round) {
 
-	reset(deck);
+	int deck[SUITS][FACES] = {AVAILABLE};
 
 	for (int player = 0; player < PLAYERS; player++) {
 		dealAHand(suits, faces, deck, playerHands, player, round);
 	}
+
+	printf("\n\n\n----- NEW ROUND -----\n\n\n");
 
 } // end dealARound
 
@@ -133,8 +133,8 @@ void dealARound(char **suits, char **faces, int **deck, int ***playerHands, int 
  * Processes:		Deal a 5 card draw poker hand of cards;	Absolute: 5 cards dealt.
  * Return Value:	None.
  */
-void dealAHand(char **suits, char **faces, int **deck, int playerHands[][PLAYERS][NUM_OF_CARDS], int
-player, int round) {
+void dealAHand(char **suits, char **faces, int deck[][FACES], int
+***playerHands, int player, int round) {
 
 	// Calculation
 	for (int card = 0; card < NUM_OF_CARDS; card++) {
@@ -153,10 +153,10 @@ player, int round) {
  * Processes:		FIXME
  * Return Value:	FIXME
  */
-void dealAGame(char *suits[], char *faces[], int deck[][FACES], int
+void dealAGame(char *suits[], char *faces[], int
 playerHands[][PLAYERS][NUM_OF_CARDS]) {
 	for (int round = 0; round < ROUNDS; round++) {
-		dealARound(suits, faces, deck, playerHands, round);
+		dealARound(suits, faces, (int ***) playerHands, round);
 	}
 } // end dealAGame
 
@@ -184,8 +184,8 @@ playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round) {
 
 	// Calculation
 	do {
-		suitIndex = rand() % 4;
-		faceIndex = rand() % 13;
+		suitIndex = rand() % SUITS;
+		faceIndex = rand() % FACES;
 	} while (deck[suitIndex][faceIndex] == TAKEN);
 
 	deck[suitIndex][faceIndex] = TAKEN;
@@ -194,8 +194,4 @@ playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round) {
 	// Output
 	printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
 
-}
-
-void reset(int deck[][FACES]) {
-	deck = {AVAILABLE};
 }
