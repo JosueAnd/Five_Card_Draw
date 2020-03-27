@@ -22,11 +22,10 @@
 /*
  * =================================================================================================
  * SPECIFICATION:
- * 	>	Generate a number within a range.
- * 	>	Generate a random number from 0 - 3, and a number from 0 - 12. Use these random numbers
- * 		to output a card. Eg: "King of Clubs"
- * 	>	Deal a hand of 5 cards.
- * 	>	Deal 4 hands of cards.
+ * 	>	User interaction.
+ * 	>	Track cards played for all rounds.
+ * 	>	Track who won each round.
+ * 	>	Declare an overall winner.
  * =================================================================================================
  */
 
@@ -40,10 +39,21 @@
 #define FACES 13
 #define AVAILABLE 0
 #define TAKEN 1
+#define PLAYERS 4
+#define NUM_OF_CARDS 5
+#define ROUNDS 4
 
 // Prototypes
 void dealACard(char *suits[], char *faces[], int deck[][FACES]);
-void dealAGame(char **suits, char **faces, int **deck);
+void dealARound(char **suits, char **faces, int **deck, int ***playerHands, int round);
+void dealAHand(char **suits, char **faces, int **deck, int playerHands[][PLAYERS][NUM_OF_CARDS], int
+player, int round);
+void dealAGame(char *suits[], char *faces[], int deck[][FACES], int
+playerHands[][PLAYERS][NUM_OF_CARDS]);
+void printHands(int hands[][SUITS][FACES]);
+void tester(char *suits[], char *faces[], int deck[][FACES], int
+playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round);
+void reset(int deck[][FACES]);
 
 /*
  * Name:			main()
@@ -55,17 +65,15 @@ void dealAGame(char **suits, char **faces, int **deck);
 int main() {
 
 	// Variables
-	char *suits[4] = {"Hearts", "Diamonds", "Spades", "Clubs"};
-	char *faces[13] = {"Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
-					"Jack", "Queen", "King", "Ace"};
-	int deck[4][13] = {AVAILABLE};
+	char *suits[SUITS] = {"Hearts", "Diamonds", "Spades", "Clubs"};
+	char *faces[FACES] = {"Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+					   "Jack", "Queen", "King", "Ace"};
+	int deck[SUITS][FACES] = {AVAILABLE};
+	int playerHands[ROUNDS][PLAYERS][NUM_OF_CARDS] = {AVAILABLE};
 
 	// Calculation
 	srand(time(NULL));
-	for (int i = 0; i < 10; ++i) {
-		dealAGame(suits, faces, deck);
-		printf("\n=============================\n\n");
-	}
+	dealAGame(suits, faces, deck, playerHands);
 
     // Output
     return 0;
@@ -88,29 +96,106 @@ void dealACard(char *suits[], char *faces[], int deck[][FACES]) {
 
 	// Calculation
 	do {
-		suitIndex = rand() % 4;
-		faceIndex = rand() % 13;
+		suitIndex = rand() % SUITS;
+		faceIndex = rand() % FACES;
 	} while (deck[suitIndex][faceIndex] == TAKEN);
 
 	deck[suitIndex][faceIndex] = TAKEN;
 
 	// Output
-	printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
+	// printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
 
 } // end dealACard
 
 /*
- * Name:			dealAGame()
+ * Name:			dealARound()
  * Parameters:		*suits[]		An array of card suits.
  * 					*faces[]		An array of card face values.
  * 					deck[][FACES]	An array of array for each suit and face to track cards played.
  * Processes:		Deal a 5 card draw poker hand of cards;	Absolute: 5 cards dealt.
  * Return Value:	None.
  */
-void dealAGame(char **suits, char **faces, int **deck) {
+void dealARound(char **suits, char **faces, int **deck, int ***playerHands, int round) {
 
-	for (int index = 0; index < 4; index++) {
-		dealACard(suits, faces, deck);
+	reset(deck);
+
+	for (int player = 0; player < PLAYERS; player++) {
+		dealAHand(suits, faces, deck, playerHands, player, round);
 	}
 
+} // end dealARound
+
+/*
+ * Name:			dealAHand()
+ * Parameters:		*suits[]		An array of card suits.
+ * 					*faces[]		An array of card face values.
+ * 					deck[][FACES]	An array of array for each suit and face to track cards played.
+ * Processes:		Deal a 5 card draw poker hand of cards;	Absolute: 5 cards dealt.
+ * Return Value:	None.
+ */
+void dealAHand(char **suits, char **faces, int **deck, int playerHands[][PLAYERS][NUM_OF_CARDS], int
+player, int round) {
+
+	// Calculation
+	for (int card = 0; card < NUM_OF_CARDS; card++) {
+		// dealACard(suits, faces, deck);
+		tester(suits, faces, deck, playerHands, player, card, round);
+	}
+
+	// FIXME: delete when done
+	printf("\n=====\n\n");
+
+} // end dealAHand
+
+/*
+ * Name:			FIXME()
+ * Parameters:		None.
+ * Processes:		FIXME
+ * Return Value:	FIXME
+ */
+void dealAGame(char *suits[], char *faces[], int deck[][FACES], int
+playerHands[][PLAYERS][NUM_OF_CARDS]) {
+	for (int round = 0; round < ROUNDS; round++) {
+		dealARound(suits, faces, deck, playerHands, round);
+	}
 } // end dealAGame
+
+/*
+ * Name:			FIXME()
+ * Parameters:		None.
+ * Processes:		FIXME
+ * Return Value:	FIXME
+ */
+void printHands(int hands[][SUITS][FACES]) {}
+
+/*
+ * Name:			tester()
+ * Parameters:		Varying.
+ * Processes:		Test functionality without changing main functions. Copy / paste to
+ * 					appropriate function body once it works.
+ * Return Value:	None.
+ */
+void tester(char *suits[], char *faces[], int deck[][FACES], int
+playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round) {
+
+	// Variables
+	int suitIndex = 0,
+		faceIndex = 0;
+
+	// Calculation
+	do {
+		suitIndex = rand() % 4;
+		faceIndex = rand() % 13;
+	} while (deck[suitIndex][faceIndex] == TAKEN);
+
+	deck[suitIndex][faceIndex] = TAKEN;
+	playerHands[round][player][card] = suitIndex * 100 + faceIndex;
+
+	// Output
+	printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
+
+}
+
+void reset(int deck[][FACES]) {
+	deck = {AVAILABLE};
+}
