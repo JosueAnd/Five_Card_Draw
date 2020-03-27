@@ -3,7 +3,7 @@
  * Name:			Joshua Andujar
  * Course:			COP 2220C at Valencia College
  * Facilitator:		David Stendel
- * Description:		FIXME
+ * Description:		Five card draw poker game.
  * Team Members:	None.
  * Date:			3/27/20
  */
@@ -44,14 +44,14 @@
 #define ROUNDS 4
 
 // Prototypes
-void dealACard(char *suits[], char *faces[], int deck[][FACES]);
+void dealACard(char *suits[], char *faces[], int deck[][FACES], int
+playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round);
 void dealARound(char **suits, char **faces, int ***playerHands, int round);
 void dealAHand(char **suits, char **faces, int deck[][FACES], int
 ***playerHands, int player, int round);
 void dealAGame(char *suits[], char *faces[], int playerHands[][PLAYERS][NUM_OF_CARDS]);
 void printHands(int hands[][SUITS][FACES]);
-void tester(char *suits[], char *faces[], int deck[][FACES], int
-playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round);
+void tester();
 
 /*
  * Name:			main()
@@ -86,7 +86,8 @@ int main() {
  * Processes:		Randomly choose a suit and a face to choose a card to deal.
  * Return Value:	None.
  */
-void dealACard(char *suits[], char *faces[], int deck[][FACES]) {
+void dealACard(char *suits[], char *faces[], int deck[][FACES], int
+playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round) {
 
 	// Variables
 	int suitIndex = 0,
@@ -99,9 +100,10 @@ void dealACard(char *suits[], char *faces[], int deck[][FACES]) {
 	} while (deck[suitIndex][faceIndex] == TAKEN);
 
 	deck[suitIndex][faceIndex] = TAKEN;
+	playerHands[round][player][card] = suitIndex * 100 + faceIndex;
 
 	// Output
-	// printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
+	printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
 
 } // end dealACard
 
@@ -138,8 +140,7 @@ void dealAHand(char **suits, char **faces, int deck[][FACES], int
 
 	// Calculation
 	for (int card = 0; card < NUM_OF_CARDS; card++) {
-		// dealACard(suits, faces, deck);
-		tester(suits, faces, deck, playerHands, player, card, round);
+		dealACard(suits, faces, deck, playerHands, player, card, round);
 	}
 
 	// FIXME: delete when done
@@ -175,23 +176,8 @@ void printHands(int hands[][SUITS][FACES]) {}
  * 					appropriate function body once it works.
  * Return Value:	None.
  */
-void tester(char *suits[], char *faces[], int deck[][FACES], int
-playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round) {
+void tester() {
 
-	// Variables
-	int suitIndex = 0,
-		faceIndex = 0;
-
-	// Calculation
-	do {
-		suitIndex = rand() % SUITS;
-		faceIndex = rand() % FACES;
-	} while (deck[suitIndex][faceIndex] == TAKEN);
-
-	deck[suitIndex][faceIndex] = TAKEN;
-	playerHands[round][player][card] = suitIndex * 100 + faceIndex;
-
-	// Output
-	printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
+	
 
 }
