@@ -158,6 +158,7 @@ void dealAGame(char *suits[], char *faces[], int
 playerHands[][PLAYERS][NUM_OF_CARDS]) {
 	for (int round = 0; round < ROUNDS; round++) {
 		dealARound(suits, faces, (int ***) playerHands, round);
+		tester(playerHands, round);
 	}
 } // end dealAGame
 
@@ -176,8 +177,17 @@ void printHands(int hands[][SUITS][FACES]) {}
  * 					appropriate function body once it works.
  * Return Value:	None.
  */
-void tester() {
+void tester(int playerHands[ROUNDS][PLAYERS][NUM_OF_CARDS], int round) {
 
-	
+	for (int player = 0;  player < PLAYERS; player++) {
+		int suits[SUITS] = {AVAILABLE},
+			faces[FACES] = {AVAILABLE};
+		for (int card = 0; card < NUM_OF_CARDS; card++) {
+			int currentCard = playerHands[round][player][card];
+			suits[currentCard / 100] = suits[currentCard / 100] + 1;
+			faces[currentCard % 100] = faces[currentCard % 100] + 1;
+			printf("%i : %i\n", suits[currentCard / 100], faces[currentCard % 100]);
+		}
+	}
 
 }
