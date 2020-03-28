@@ -52,7 +52,7 @@
 //void dealAGame(char *suits[], char *faces[], int playerHands[][PLAYERS][NUM_OF_CARDS], int
 //roundWinners[]);
 //void printHands(int hands[][SUITS][FACES]);
-//void tester(int ***playerHands, int round, int *roundWinners);
+//void determineRoundWinner(int ***playerHands, int round, int *roundWinners);
 //
 ///*
 // * Name:			main()
@@ -162,7 +162,7 @@
 //	int ***players = (int ***) playerHands;
 //	for (int round = 0; round < ROUNDS; round++) {
 //		dealARound(suits, faces, players, round);
-//		tester(players, round, roundWinners);
+//		determineRoundWinner(players, round, roundWinners);
 //	}
 //} // end dealAGame
 //
@@ -175,13 +175,13 @@
 //void printHands(int hands[][SUITS][FACES]) {}
 //
 ///*
-// * Name:			tester()
+// * Name:			determineRoundWinner()
 // * Parameters:		Varying.
 // * Processes:		Test functionality without changing main functions. Copy / paste to
 // * 					appropriate function body once it works.
 // * Return Value:	None.
 // */
-//void tester(int ***playerHands, int round, int *roundWinners) {
+//void determineRoundWinner(int ***playerHands, int round, int *roundWinners) {
 //
 //	// Variables
 //	int winnerIndex = 0,
@@ -366,4 +366,4 @@
 //
 //	roundWinners[round] = winnerIndex;
 //
-//} // end tester
+//} // end determineRoundWinner
