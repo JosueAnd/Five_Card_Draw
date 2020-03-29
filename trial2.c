@@ -9,10 +9,24 @@
  */
 
 /*
- * Name:			FIXME()
- * Parameters:		None.
- * Processes:		FIXME
- * Return Value:	FIXME
+ * =============================== Notes for the Professor: ===============================
+ * This game of Five Card Draw will play a game, four rounds, of poker. This game includes
+ * no user interaction. When determining the overall winner, it does check
+ * for ties and states the players between whom the tie occurs. It checks hands for Royal
+ * Flush, Straight Flush, Four of a Kind, Full House, Flush, Straight, Three of a Kind,
+ * Two Pair, Pair, and High Card. It tracks the highest precedence hand for comparison to
+ * other hands in the same round.
+ * ** Example:
+ * Two players have a "Winning Hand" of Two Pair, but whose Two Pair is better? The game
+ * tracked the first occurrence, and compares the second occurrence to the first when it
+ * reaches it, determines if the second is greater than the first and replaces it if so
+ * (Second: Two Pair, one Pair being Aces, First: Two Pair, highest being Kings).
+ * ** End Example
+ * It tracks all hands for all players for an entire game. It tracks them using a card
+ * "ID", multiplying the suit index by 100 and adding the face index to it. It prints out
+ * those hands each round along with that rounds winner, and prints the overall game
+ * winner at the end of the game.
+ * ====================================== End Notes =======================================
  */
 
 // Preprocessor Directives
@@ -30,16 +44,14 @@
 #define ROUNDS 4
 
 // Prototypes
-void dealACard(char *suits[], char *faces[], int deck[][FACES], int
-playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round);
-void dealARound(char **suits, char **faces, int playerHands[][PLAYERS][NUM_OF_CARDS], int round);
-void dealAHand(char **suits, char **faces, int deck[][FACES], int
-playerHands[][PLAYERS][NUM_OF_CARDS], int player, int round);
-void dealAGame(char *suits[], char *faces[], int playerHands[][PLAYERS][NUM_OF_CARDS], int
-roundWinners[]);
-void printStats(int hands[][SUITS][NUM_OF_CARDS], int results[]);
-void determineRoundWinner(int playerHands[][PLAYERS][NUM_OF_CARDS], int round, int *roundWinners);
+void dealACard(int deck[][FACES], int playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card,
+		int round);
+void dealAGame(int playerHands[][PLAYERS][NUM_OF_CARDS], int roundWinners[]);
+void dealAHand(int deck[][FACES], int playerHands[][PLAYERS][NUM_OF_CARDS], int player, int round);
+void dealARound(int playerHands[][PLAYERS][NUM_OF_CARDS], int round);
 void determineOverallWinner(const int results[]);
+void determineRoundWinner(int playerHands[][PLAYERS][NUM_OF_CARDS], int round, int *roundWinners);
+void printStats(int hands[][SUITS][NUM_OF_CARDS], int results[], char *suits[], char *faces[]);
 
 /*
  * Name:			main()
@@ -61,10 +73,10 @@ int main() {
 
 	// Calculation
 	srand(time(NULL));
-	dealAGame(suits, faces, playerHands, roundWinners);
+	dealAGame(playerHands, roundWinners);
 
 	// Output
-	printStats(playerHands, roundWinners);
+	printStats(playerHands, roundWinners, suits, faces);
 	determineOverallWinner(roundWinners);
 	return 0;
 
@@ -72,9 +84,8 @@ int main() {
 
 /*
  * Name:			dealACard()
- * Parameters:		*suits[]			An array of card suits.
- * 					*faces[]			An array of card face values.
- * 					deck[][]			An array of array for each suit and face to track cards played.
+ * Parameters:		deck[][]			An array of array for each suit and face to track cards
+ * 										played.
  * 					playerHands[][][]	The array keeping track of each players hand for each
  * 										round.
  * 					player				The current player receiving cards.
@@ -84,8 +95,8 @@ int main() {
  * 					player.
  * Return Value:	None.
  */
-void dealACard(char *suits[], char *faces[], int deck[][FACES], int
-playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round) {
+void dealACard(int deck[][FACES], int playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card,
+		int round) {
 
 	// Variables
 	int suitIndex = 0,
@@ -103,32 +114,27 @@ playerHands[][PLAYERS][NUM_OF_CARDS], int player, int card, int round) {
 } // end dealACard
 
 /*
- * Name:			dealARound()
- * Parameters:		**suits				An array of card suits.
- * 					**faces				An array of card face values.
- * 					playerHands[][][]	The array keeping track of each players hand for each
+ * Name:			dealAGame()
+ * Parameters:		playerHands[][][]	The array keeping track of each players hand for each
  * 										round.
- * 					round				The round that cards are being dealt for.
- * Processes:		Deal a hand of Five Card Draw to each player.
+ * 					roundWinners[]		The array where the index of winner is stored at the
+ * 										index for that round.
+ * Processes:		Deal four rounds of Five Card Draw and then determine the winners of each round.
  * Return Value:	None.
  */
-void dealARound(char **suits, char **faces, int playerHands[][PLAYERS][NUM_OF_CARDS], int round) {
-
-	// Variables
-	int deck[SUITS][FACES] = {AVAILABLE};
+void dealAGame(int playerHands[][PLAYERS][NUM_OF_CARDS], int roundWinners[]) {
 
 	// Calculation
-	for (int player = 0; player < PLAYERS; player++) {
-		dealAHand(suits, faces, deck, playerHands, player, round);
+	for (int round = 0; round < ROUNDS; round++) {
+		dealARound(playerHands, round);
+		determineRoundWinner(playerHands, round, roundWinners);
 	}
 
-} // end dealARound
+} // end dealAGame
 
 /*
  * Name:			dealAHand()
- * Parameters:		**suits				An array of card suits.
- * 					**faces				An array of card face values.
- * 					deck[][]			An array of array for each suit and face to track cards
+ * Parameters:		deck[][]			An array of array for each suit and face to track cards
  * 										played.
  * 					playerHands[][][]	The array keeping track of each players hand for each
  * 										round.
@@ -137,64 +143,98 @@ void dealARound(char **suits, char **faces, int playerHands[][PLAYERS][NUM_OF_CA
  * Processes:		Deal a five card hand of Five Card Draw.
  * Return Value:	None.
  */
-void dealAHand(char **suits, char **faces, int deck[][FACES], int
+void dealAHand(int deck[][FACES], int
 playerHands[][PLAYERS][NUM_OF_CARDS], int player, int round) {
 
 	// Calculation
 	for (int card = 0; card < NUM_OF_CARDS; card++) {
-		dealACard(suits, faces, deck, playerHands, player, card, round);
+		dealACard(deck, playerHands, player, card, round);
 	}
 
 } // end dealAHand
 
 /*
- * Name:			dealAGame()
- * Parameters:		*suits[]			An array of card suits.
- * 					*faces[]			An array of card face values.
- * 					playerHands[][][]	The array keeping track of each players hand for each
+ * Name:			dealARound()
+ * Parameters:		playerHands[][][]	The array keeping track of each players hand for each
  * 										round.
- * 					roundWinners[]		The array where the index of winner is stored at the
- * 										index for that round.
- * Processes:		Deal four rounds of Five Card Draw and then determine the winners of each round.
+ * 					round				The round that cards are being dealt for.
+ * Processes:		Deal a hand of Five Card Draw to each player.
  * Return Value:	None.
  */
-void dealAGame(char *suits[], char *faces[], int
-playerHands[][PLAYERS][NUM_OF_CARDS], int roundWinners[]) {
+void dealARound(int playerHands[][PLAYERS][NUM_OF_CARDS], int round) {
+
+	// Variables
+	int deck[SUITS][FACES] = {AVAILABLE};
 
 	// Calculation
-	for (int round = 0; round < ROUNDS; round++) {
-		dealARound(suits, faces, playerHands, round);
-		determineRoundWinner(playerHands, round, roundWinners);
+	for (int player = 0; player < PLAYERS; player++) {
+		dealAHand(deck, playerHands, player, round);
 	}
 
-} // end dealAGame
+} // end dealARound
 
 /*
- * Name:			printStats()
- * Parameters:		hands[][][]			The array keeping track of each players hand for each
- * 										round.
- * 					results[]			The array where the index of winner is stored at the
- * 										index for that round.
- * Processes:		Print each players hand, for each round and then print the winners of each
- * 					round.
+ * Name:			determineOverallWinner()
+ * Parameters:		results[]	The array where the index of winner is stored at the index for
+ * 								that round.
+ * Processes:		Count how many times each Player's number appears in the results and
+ * 					determines a winner or a tie based on number of round wins per player.
  * Return Value:	None.
  */
-void printStats(int hands[][SUITS][NUM_OF_CARDS], int results[]) {
+void determineOverallWinner(const int results[]) {
 
-	for (int round = 0; round < ROUNDS; ++round) {
-		printf("\n=====     Round %i     =====\n", round + 1);
-		for (int player = 0; player < PLAYERS; ++player) {
-			printf("\tPlayer %i Hand\n", player + 1);
-			for (int card = 0; card < NUM_OF_CARDS; ++card) {
-				printf("\t\tCard %i: %i\n", card + 1, hands[round][player][card]);
-			}
+	// Variables
+	int players[ROUNDS] = {AVAILABLE};
+	int winner = -1,
+			winner2 = 0,
+			fourWayTieFlag = 0,
+			twoWinPlayers = 0;
+
+	// Calculations
+	for (int player = 0; player < ROUNDS; player++) {
+		switch (results[player]) {
+			case 0:
+				players[0] += 1;
+				break;
+			case 1:
+				players[1] += 1;
+				break;
+			case 2:
+				players[2] += 1;
+				break;
+			case 3:
+				players[3] += 1;
 		}
-		printf("\n\tRound %i Winner: Player %i\n", round + 1, results[round] + 1);
 	}
 
-	// printf("%s of %s\n", faces[faceIndex], suits[suitIndex]);
+	// Check for ties.
+	for (int player = 0; player < PLAYERS; ++player) {
+		if (players[player] == 4 || players[player] == 3) {
+			winner = player;
+		} else if (players[player] == 2) {
+			twoWinPlayers += 1;
+			if (winner > -1) {
+				winner2 = player;
+			} else {
+				winner = player;
+			}
+		} else if (players[0] == 1 && players[1] == 1 && players[2] == 1 && players[3] == 1) {
+			fourWayTieFlag = 1;
+		}
+	}
 
-}
+	// Output
+	if (fourWayTieFlag == 1) {
+		printf("\n=====\n\n\tWe have a four way tie. EVERYBODY WINS!\n\n=====\n");
+	} else if (twoWinPlayers > 1) {
+		printf("\n=====\n\n\tWe have a tie between Players %i & %i.\n\n=====\n", winner + 1,
+			   winner2 + 1);
+	} else {
+		printf("\n=====\n\n\tThe overall game winner is Player %i. Congratulations Player "
+			   "%i!\n\n=====\n", winner + 1, winner + 1);
+	}
+
+} // end determineOverallWinner
 
 /*
  * Name:			determineRoundWinner()
@@ -389,6 +429,7 @@ void determineRoundWinner(int playerHands[][PLAYERS][NUM_OF_CARDS], int round, i
 					}
 					break;
 				case 1:
+				default:
 					if (roundHighCardPlayer == player) {
 						winnerIndex = player;
 					}
@@ -402,49 +443,31 @@ void determineRoundWinner(int playerHands[][PLAYERS][NUM_OF_CARDS], int round, i
 } // end determineRoundWinner
 
 /*
- * Name:			determineOverallWinner()
- * Parameters:		results[]	The array where the index of winner is stored at the index for
- * 								that round.
- * Processes:		FIXME
- * Return Value:	FIXME
+ * Name:			printStats()
+ * Parameters:		hands[][][]			The array keeping track of each players hand for each
+ * 										round.
+ * 					results[]			The array where the index of winner is stored at the
+ * 										index for that round.
+ * 					*suits[]			An array of card suits.
+ * 					*faces[]			An array of card face values.
+ * Processes:		Print each players hand, for each round and then print the winners of each
+ * 					round.
+ * Return Value:	None.
  */
-void determineOverallWinner(const int results[]) {
+void printStats(int hands[][SUITS][NUM_OF_CARDS], int results[], char *suits[], char *faces[]) {
 
-	// Variables
-	int players[ROUNDS] = {AVAILABLE};
-	int winner = -1,
-		winner2 = 0,
-		twoWinPlayers = 0;
-
-	// Calculations
-	for (int player = 0; player < ROUNDS; player++) {
-		switch (results[player]) {
-			case 0:
-				players[0] += 1;
-				break;
-			case 1:
-				players[1] += 1;
-				break;
-			case 2:
-				players[2] += 1;
-				break;
-			case 3:
-				players[3] += 1;
-		}
-	}
-
-	for (int player = 0; player < PLAYERS; ++player) {
-		if (players[player] == 4 || players[player] == 3) {
-			winner = player;
-		} else if (players[player] == 2) {
-			twoWinPlayers += 1;
-			if (winner > -1) {
-				winner2 = player;
-			} else {
-				winner = player;
+	// Calculation and Output
+	for (int round = 0; round < ROUNDS; ++round) {
+		printf("\n=====     Round %i     =====\n", round + 1);
+		for (int player = 0; player < PLAYERS; ++player) {
+			printf("\tPlayer %i Hand\n", player + 1);
+			for (int card = 0; card < NUM_OF_CARDS; ++card) {
+				printf("\t\tCard %i: %s of %s\n", card + 1,
+					   faces[hands[round][player][card] / 100],
+					   suits[hands[round][player][card] % 100]);
 			}
 		}
+		printf("\n\tRound %i Winner: Player %i\n", round + 1, results[round] + 1);
 	}
 
-}
-// end determineOverallWinner
+} // end printStats
