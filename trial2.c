@@ -39,6 +39,7 @@ void dealAGame(char *suits[], char *faces[], int playerHands[][PLAYERS][NUM_OF_C
 roundWinners[]);
 void printStats(int hands[][SUITS][NUM_OF_CARDS], int results[]);
 void determineRoundWinner(int playerHands[][PLAYERS][NUM_OF_CARDS], int round, int *roundWinners);
+void determineOverallWinner(const int results[]);
 
 /*
  * Name:			main()
@@ -64,6 +65,7 @@ int main() {
 
 	// Output
 	printStats(playerHands, roundWinners);
+	determineOverallWinner(roundWinners);
 	return 0;
 
 } // end main
@@ -398,3 +400,51 @@ void determineRoundWinner(int playerHands[][PLAYERS][NUM_OF_CARDS], int round, i
 	roundWinners[round] = winnerIndex;
 
 } // end determineRoundWinner
+
+/*
+ * Name:			determineOverallWinner()
+ * Parameters:		results[]	The array where the index of winner is stored at the index for
+ * 								that round.
+ * Processes:		FIXME
+ * Return Value:	FIXME
+ */
+void determineOverallWinner(const int results[]) {
+
+	// Variables
+	int players[ROUNDS] = {AVAILABLE};
+	int winner = -1,
+		winner2 = 0,
+		twoWinPlayers = 0;
+
+	// Calculations
+	for (int player = 0; player < ROUNDS; player++) {
+		switch (results[player]) {
+			case 0:
+				players[0] += 1;
+				break;
+			case 1:
+				players[1] += 1;
+				break;
+			case 2:
+				players[2] += 1;
+				break;
+			case 3:
+				players[3] += 1;
+		}
+	}
+
+	for (int player = 0; player < PLAYERS; ++player) {
+		if (players[player] == 4 || players[player] == 3) {
+			winner = player;
+		} else if (players[player] == 2) {
+			twoWinPlayers += 1;
+			if (winner > -1) {
+				winner2 = player;
+			} else {
+				winner = player;
+			}
+		}
+	}
+
+}
+// end determineOverallWinner
