@@ -8,27 +8,6 @@
  * Date:			3/27/20
  */
 
-/*
- * =============================== Notes for the Professor: ===============================
- * This game of Five Card Draw will play a game, four rounds, of poker. This game includes
- * no user interaction. When determining the overall winner, it does check
- * for ties and states the players between whom the tie occurs. It checks hands for Royal
- * Flush, Straight Flush, Four of a Kind, Full House, Flush, Straight, Three of a Kind,
- * Two Pair, Pair, and High Card. It tracks the highest precedence hand for comparison to
- * other hands in the same round.
- * ** Example:
- * Two players have a "Winning Hand" of Two Pair, but whose Two Pair is better? The game
- * tracked the first occurrence, and compares the second occurrence to the first when it
- * reaches it, determines if the second is greater than the first and replaces it if so
- * (Second: Two Pair, one Pair being Aces, First: Two Pair, highest being Kings).
- * ** End Example
- * It tracks all hands for all players for an entire game. It tracks them using a card
- * "ID", multiplying the suit index by 100 and adding the face index to it. It prints out
- * those hands each round along with that rounds winner, and prints the overall game
- * winner at the end of the game.
- * ====================================== End Notes =======================================
- */
-
 // Preprocessor Directives
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,8 +45,7 @@ int main() {
 	// Variables
 	char *suits[SUITS] = {"Hearts", "Diamonds", "Spades", "Clubs"};
 	char *faces[FACES] = {"Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
-						  "Jack", "Queen", "King", "Ace"};
-	// int deck[SUITS][FACES] = {AVAILABLE};
+					   "Jack", "Queen", "King", "Ace"};
 	int playerHands[ROUNDS][PLAYERS][NUM_OF_CARDS] = {AVAILABLE},
 		roundWinners[ROUNDS] = {AVAILABLE};
 
@@ -109,6 +87,7 @@ void dealACard(int deck[][FACES], int playerHands[][PLAYERS][NUM_OF_CARDS], int 
 	} while (deck[suitIndex][faceIndex] == TAKEN);
 
 	deck[suitIndex][faceIndex] = TAKEN;
+	// Tracking cards using a card "ID".
 	playerHands[round][player][card] = suitIndex * 100 + faceIndex;
 
 } // end dealACard
@@ -143,8 +122,7 @@ void dealAGame(int playerHands[][PLAYERS][NUM_OF_CARDS], int roundWinners[]) {
  * Processes:		Deal a five card hand of Five Card Draw.
  * Return Value:	None.
  */
-void dealAHand(int deck[][FACES], int
-playerHands[][PLAYERS][NUM_OF_CARDS], int player, int round) {
+void dealAHand(int deck[][FACES], int playerHands[][PLAYERS][NUM_OF_CARDS], int player, int round) {
 
 	// Calculation
 	for (int card = 0; card < NUM_OF_CARDS; card++) {
@@ -186,9 +164,9 @@ void determineOverallWinner(const int results[]) {
 	// Variables
 	int players[ROUNDS] = {AVAILABLE};
 	int winner = -1,
-			winner2 = 0,
-			fourWayTieFlag = 0,
-			twoWinPlayers = 0;
+		winner2 = 0,
+		fourWayTieFlag = 0,
+		twoWinPlayers = 0;
 
 	// Calculations
 	for (int player = 0; player < ROUNDS; player++) {
@@ -457,14 +435,17 @@ void determineRoundWinner(int playerHands[][PLAYERS][NUM_OF_CARDS], int round, i
 void printStats(int hands[][SUITS][NUM_OF_CARDS], int results[], char *suits[], char *faces[]) {
 
 	// Calculation and Output
-	for (int round = 0; round < ROUNDS; ++round) {
+	for (int round = 0; round < ROUNDS; round++) {
 		printf("\n=====     Round %i     =====\n", round + 1);
-		for (int player = 0; player < PLAYERS; ++player) {
+		for (int player = 0; player < PLAYERS; player++) {
 			printf("\tPlayer %i Hand\n", player + 1);
-			for (int card = 0; card < NUM_OF_CARDS; ++card) {
-				printf("\t\tCard %i: %s of %s\n", card + 1,
-					   faces[hands[round][player][card] / 100],
-					   suits[hands[round][player][card] % 100]);
+			for (int card = 0; card < NUM_OF_CARDS; card++) {
+				printf(
+						"\t\tCard %i: %s of %s\n",
+						card + 1,
+						faces[hands[round][player][card] % 100],
+						suits[hands[round][player][card] / 100]
+					   );
 			}
 		}
 		printf("\n\tRound %i Winner: Player %i\n", round + 1, results[round] + 1);
